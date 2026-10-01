@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Panel — PetMatch</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .bg-hero-pattern {
+            background-image: linear-gradient(to bottom, rgba(250, 250, 250, 0.92), rgba(250, 250, 250, 0.96)), 
+                              url('https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .dark .bg-hero-pattern {
+            background-image: linear-gradient(to bottom, rgba(9, 9, 11, 0.90), rgba(9, 9, 11, 0.95)), 
+                              url('https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1920&auto=format&fit=crop');
+        }
+    </style>
+</head>
+<body class="bg-hero-pattern text-zinc-800 dark:text-zinc-100 antialiased min-h-screen flex flex-col justify-between selection:bg-rose-100 selection:text-rose-700">
+
+    <div>
+        <!-- HEADER DEL DASHBOARD -->
+        <header class="max-w-7xl mx-auto px-6 h-20 w-full flex items-center justify-between border-b border-zinc-200/60 dark:border-zinc-800/60 backdrop-blur-md bg-white/50 dark:bg-zinc-950/50 sticky top-0 z-40">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-center shadow-md">
+                    <i data-lucide="paw-print" class="w-5 h-5"></i>
+                </div>
+                <span class="font-bold text-xl tracking-tight text-zinc-900 dark:text-white">PetMatch</span>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <!-- Botón de Calendario y Actividad Global -->
+                <button onclick="toggleCalendarDrawer()" class="flex items-center gap-2 bg-white/80 dark:bg-zinc-900/80 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 px-4 py-2 rounded-2xl text-sm font-semibold transition-all border border-zinc-200/80 dark:border-zinc-800 shadow-xs">
+                    <i data-lucide="calendar" class="w-4 h-4 text-rose-600"></i> Mi Agenda y Actividad
+                </button>
+
+                <div class="flex items-center gap-3 bg-white/80 dark:bg-zinc-900/80 px-4 py-2 rounded-2xl border border-zinc-200/80 dark:border-zinc-800">
+                    <div class="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400 flex items-center justify-center font-bold text-xs" id="userInitial">U</div>
+                    <span class="text-sm font-semibold text-zinc-800 dark:text-zinc-200" id="userName">Cargando...</span>
+                </div>
+
+                <button id="logoutBtn" class="w-10 h-10 rounded-xl border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors" title="Cerrar sesión">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="max-w-5xl mx-auto px-6 pt-10 pb-20">
+            
+            <!-- SECCIÓN PRINCIPAL DE MASCOTAS (CENTRALIZADA) -->
+            <div class="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md p-6 sm:p-8 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 shadow-xl mb-10">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-zinc-900 dark:text-white">Mis Mascotas</h2>
+                        <p class="text-sm text-zinc-500 dark:text-zinc-400">Tus compañeros registrados y sus perfiles personalizados.</p>
+                    </div>
+                    <button id="openModalBtn" class="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all shadow-sm">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Añadir mascota
+                    </button>
+                </div>
+
+                <!-- Grilla dinámica de mascotas con sus fotos reales -->
+                <div id="petsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="col-span-full p-8 rounded-2xl border border-dashed border-zinc-300 dark:border-zinc-700 text-center text-zinc-400 text-sm">
+                        No tienes mascotas registradas todavía. ¡Añade la primera con su foto!
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- PANEL LATERAL DESPLEGABLE (CALENDARIO & ACTIVIDAD GLOBAL) -->
+    <div id="calendarDrawerOverlay" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs hidden transition-opacity" onclick="toggleCalendarDrawer()"></div>
+    <div id="calendarDrawer" class="fixed top-0 right-0 z-50 h-full w-full max-w-2xl bg-white dark:bg-zinc-900 border-l border-zinc-200 dark:border-zinc-800 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+        
+        <!-- Cabecera del Panel Lateral -->
+        <div class="px-6 h-20 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-zinc-950">
+            <h2 class="font-bold text-lg text-zinc-900 dark:text-white flex items-center gap-2">
+                <i data-lucide="calendar" class="w-5 h-5 text-rose-600"></i> Calendario y Actividad Global
+            </h2>
+            <button onclick="toggleCalendarDrawer()" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-2">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Contenido Dividido: Izquierda (Calendario) / Derecha (Información y Turnos) -->
+        <div class="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Columna Izquierda: Calendario Visual Interactivo -->
+            <div class="bg-zinc-50 dark:bg-zinc-950/50 p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 id="currentMonthYear" class="font-bold text-sm text-zinc-900 dark:text-white capitalize">Abril 2026</h3>
+                        <div class="flex items-center gap-1">
+                            <button onclick="changeMonth(-1)" class="p-1 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                            <button onclick="changeMonth(1)" class="p-1 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- Días de la semana -->
+                    <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-zinc-400 mb-2">
+                        <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span><span>Do</span>
+                    </div>
+
+                    <!-- Grilla del Calendario -->
+                    <div id="calendarDaysGrid" class="grid grid-cols-7 gap-1 text-center text-xs">
+                        <!-- Las fechas se cargan dinámicamente mediante JS -->
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500">
+                    💡 <span class="font-semibold text-zinc-700 dark:text-zinc-300">Nota:</span> Los días destacados reflejan turnos y reservas agendadas para tus mascotas.
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Turnos Reservados y Actividad en Vivo -->
+            <div class="space-y-4">
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="clock" class="w-4 h-4 text-rose-600"></i> Turnos y Reservas Activas
+                </h3>
+
+                <div id="drawerAppointmentsList" class="space-y-3">
+                    <div class="p-4 rounded-2xl border border-dashed border-zinc-300 dark:border-zinc-700 text-center text-zinc-400 text-xs">
+                        Cargando actividad reciente...
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL PARA AÑADIR MASCOTA Y FOTO DE GALERÍA -->
+    <div id="petModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4">
+        <div class="bg-white dark:bg-zinc-900 p-6 sm:p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 w-full max-w-md shadow-2xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-zinc-900 dark:text-white">Nueva mascota</h3>
+                <button id="closeModalBtn" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="addPetForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-2">Nombre de la mascota</label>
+                    <input type="text" id="petName" required placeholder="Ej. Darwin" class="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-rose-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-2">Especie</label>
+                        <select id="petSpecies" class="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-rose-500">
+                            <option value="Perro">Perro</option>
+                            <option value="Gato">Gato</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-2">Género</label>
+                        <select id="petGender" class="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-rose-500">
+                            <option value="Macho">Macho</option>
+                            <option value="Hembra">Hembra</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-2">Foto de perfil (Desde tu galería)</label>
+                    <div class="flex items-center gap-3">
+                        <label class="w-full flex items-center justify-center gap-2 bg-zinc-50 dark:bg-zinc-950 border border-dashed border-zinc-300 dark:border-zinc-700 hover:border-rose-500 rounded-xl px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400 cursor-pointer transition-colors">
+                            <i data-lucide="image" class="w-4 h-4 text-rose-500"></i>
+                            <span id="fileNameLabel" class="truncate">Elegir archivo...</span>
+                            <input type="file" id="petPhotoFile" accept="image/*" class="hidden" onchange="updateFileName(this)">
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="button" id="cancelModalBtn" class="w-1/2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-medium py-2.5 rounded-xl hover:bg-zinc-200 transition-all text-sm">Cancelar</button>
+                    <button type="submit" id="submitPetBtn" class="w-1/2 bg-rose-600 hover:bg-rose-700 text-white font-medium py-2.5 rounded-xl transition-all shadow-sm text-sm">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400 backdrop-blur-md bg-white/30 dark:bg-zinc-950/30 border-t border-zinc-200/60 dark:border-zinc-800/60">
+        <p>&copy; 2026 PetMatch. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- SDK de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        lucide.createIcons();
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+
+        const SUPABASE_URL = 'TU_PROJECT_URL_AQUI';
+        const SUPABASE_ANON_KEY = 'TU_ANON_KEY_AQUI';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const modal = document.getElementById('petModal');
+        document.getElementById('openModalBtn').addEventListener('click', () => modal.classList.remove('hidden'));
+        document.getElementById('closeModalBtn').addEventListener('click', () => modal.classList.add('hidden'));
+        document.getElementById('cancelModalBtn').addEventListener('click', () => modal.classList.add('hidden'));
+
+        function updateFileName(input) {
+            const label = document.getElementById('fileNameLabel');
+            if (input.files && input.files[0]) {
+                label.textContent = input.files[0].name;
+                label.classList.add('text-zinc-900', 'dark:text-white', 'font-medium');
+            } else {
+                label.textContent = 'Elegir archivo...';
+            }
+        }
+
+        async function checkUserSession() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'login.html';
+            } else {
+                const user = session.user;
+                const fullName = user.user_metadata.full_name || 'Usuario';
+                document.getElementById('userName').textContent = fullName;
+                document.getElementById('userInitial').textContent = fullName.charAt(0).toUpperCase();
+                loadUserPets(user.id);
+            }
+        }
+
+        async function loadUserPets(userId) {
+            const { data: pets, error } = await _supabase
+                .from('pets')
+                .select('*')
+                .eq('user_id', userId);
+
+            const container = document.getElementById('petsContainer');
+            if (pets && pets.length > 0) {
+                container.innerHTML = pets.map(pet => `
+                    <div class="bg-zinc-50 dark:bg-zinc-950/50 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+                        <div class="h-48 w-full bg-zinc-200 dark:bg-zinc-800 relative overflow-hidden">
+                            <img src="${pet.foto_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=600&auto=format&fit=crop'}" alt="${pet.nombre}" class="w-full h-full object-cover">
+                            <span class="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+                                ${pet.especie}
+                            </span>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="font-bold text-lg text-zinc-900 dark:text-white mb-1">${pet.nombre}</h3>
+                            <p class="text-xs text-zinc-500 dark:text-zinc-400 capitalize">Género: ${pet.genero}</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        document.getElementById('addPetForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitPetBtn');
+            submitBtn.textContent = 'Guardando...';
+            submitBtn.disabled = true;
+
+            const { data: { session } } = await _supabase.auth.getSession();
+            const nombre = document.getElementById('petName').value;
+            const especie = document.getElementById('petSpecies').value;
+            const genero = document.getElementById('petGender').value;
+            const fileInput = document.getElementById('petPhotoFile');
+
+            let fotoUrl = '';
+
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}.${fileExt}`;
+                const filePath = `${session.user.id}/${fileName}`;
+
+                const { error: uploadError } = await _supabase.storage
+                    .from('pet-photos')
+                    .upload(filePath, file);
+
+                if (!uploadError) {
+                    const { data: publicURLData } = _supabase.storage
+                        .from('pet-photos')
+                        .getPublicUrl(filePath);
+                    fotoUrl = publicURLData.publicUrl;
+                }
+            }
+
+            const { error } = await _supabase.from('pets').insert([
+                { user_id: session.user.id, nombre, especie, genero, foto_url: fotoUrl }
+            ]);
+
+            submitBtn.textContent = 'Guardar';
+            submitBtn.disabled = false;
+
+            if (error) {
+                alert('Error al guardar la mascota: ' + error.message);
+            } else {
+                modal.classList.add('hidden');
+                document.getElementById('addPetForm').reset();
+                document.getElementById('fileNameLabel').textContent = 'Elegir archivo...';
+                loadUserPets(session.user.id);
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await _supabase.auth.signOut();
+            window.location.href = 'index.html';
+        });
+
+        // Control del Panel Desplegable (Drawer) de Calendario
+        function toggleCalendarDrawer() {
+            const drawer = document.getElementById('calendarDrawer');
+            const overlay = document.getElementById('calendarDrawerOverlay');
+            
+            drawer.classList.toggle('translate-x-full');
+            overlay.classList.toggle('hidden');
+
+            if (!drawer.classList.contains('translate-x-full')) {
+                loadGlobalActivity();
+            }
+        }
+
+        // Lógica del Calendario Visual Funcional
+        let today = new Date();
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
+
+        function renderCalendar() {
+            const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            document.getElementById('currentMonthYear').textContent = `${months[currentMonth]} ${currentYear}`;
+
+            const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+            let adjustedFirstDay = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+            const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            const grid = document.getElementById('calendarDaysGrid');
+            grid.innerHTML = '';
+
+            // Espacios vacíos previos al inicio del mes
+            for (let i = 0; i < adjustedFirstDay; i++) {
+                grid.innerHTML += `<div class="h-8 w-8"></div>`;
+            }
+
+            // Días reales del mes
+            for (let day = 1; day <= totalDays; day++) {
+                const isToday = day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
+                grid.innerHTML += `
+                    <div class="h-8 w-8 mx-auto flex items-center justify-center rounded-xl font-medium ${isToday ? 'bg-rose-600 text-white font-bold shadow-md' : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-800'}">
+                        ${day}
+                    </div>
+                `;
+            }
+            lucide.createIcons();
+        }
+
+        function changeMonth(direction) {
+            currentMonth += direction;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+        }
+
+        // Cargar turnos desde Supabase para el panel derecho del calendario
+        async function loadGlobalActivity() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (!session) return;
+
+            const userId = session.user.id;
+
+            const [vetRes, spaRes] = await Promise.all([
+                _supabase.from('appointments').select('*, pets(nombre)').eq('user_id', userId),
+                _supabase.from('spa_appointments').select('*, pets(nombre)').eq('user_id', userId)
+            ]);
+
+            const vetAppointments = vetRes.data || [];
+            const spaAppointments = spaRes.data || [];
+            const allAppointments = [...vetAppointments, ...spaAppointments];
+
+            const container = document.getElementById('drawerAppointmentsList');
+
+            if (allAppointments.length > 0) {
+                container.innerHTML = allAppointments.map(app => `
+                    <div class="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-xs flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-xl bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400 flex items-center justify-center font-bold">
+                                🐾
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-zinc-900 dark:text-white">${app.pets?.nombre || 'Mascota'}</h4>
+                                <p class="text-zinc-500 dark:text-zinc-400">${app.motivo || app.servicio} • <span class="text-rose-600 font-semibold">${app.fecha}</span></p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 bg-rose-50 dark:bg-rose-950 text-rose-600 dark:text-rose-400 font-semibold rounded-full text-[10px]">Agendado</span>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = `
+                    <div class="p-6 rounded-2xl border border-dashed border-zinc-300 dark:border-zinc-700 text-center text-zinc-400 text-xs">
+                        No hay turnos ni reservas activas en este momento.
+                    </div>
+                `;
+            }
+        }
+
+        renderCalendar();
+        checkUserSession();
+    </script>
+</body>
+</html>

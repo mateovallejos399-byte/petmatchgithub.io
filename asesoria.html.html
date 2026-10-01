@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asesoría Veterinaria IA — PetMatch</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .bg-hero-pattern {
+            background-image: linear-gradient(to bottom, rgba(250, 250, 250, 0.92), rgba(250, 250, 250, 0.96)), 
+                              url('https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .dark .bg-hero-pattern {
+            background-image: linear-gradient(to bottom, rgba(9, 9, 11, 0.90), rgba(9, 9, 11, 0.95)), 
+                              url('https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1920&auto=format&fit=crop');
+        }
+    </style>
+</head>
+<body class="bg-hero-pattern text-zinc-800 dark:text-zinc-100 antialiased min-h-screen flex flex-col justify-between selection:bg-amber-100 selection:text-amber-700">
+
+    <div class="flex flex-col flex-1">
+        <!-- HEADER INDEPENDIENTE -->
+        <header class="max-w-7xl mx-auto px-6 h-20 w-full flex items-center justify-between border-b border-zinc-200/60 dark:border-zinc-800/60 backdrop-blur-md bg-white/50 dark:bg-zinc-950/50 sticky top-0 z-40">
+            <a href="dashboard.html" class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-center shadow-md">
+                    <i data-lucide="paw-print" class="w-5 h-5"></i>
+                </div>
+                <span class="font-bold text-xl tracking-tight text-zinc-900 dark:text-white">PetMatch</span>
+            </a>
+
+            <div class="flex items-center gap-4">
+                <a href="dashboard.html" class="text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors flex items-center gap-2 bg-white/80 dark:bg-zinc-900/80 px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver al Panel
+                </a>
+            </div>
+        </header>
+
+        <!-- CONTENIDO PRINCIPAL: CHATBOT DE ASESORÍA -->
+        <main class="max-w-4xl mx-auto px-6 py-10 flex-1 flex flex-col w-full">
+            
+            <!-- Título de Sección -->
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center shadow-md shrink-0">
+                    <i data-lucide="bot" class="w-7 h-7"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Asesoría Veterinaria & Cuidados IA</h1>
+                    <p class="text-sm text-zinc-500 dark:text-zinc-400">Consultá tus dudas sobre nutrición, comportamiento o primeros auxilios las 24 horas.</p>
+                </div>
+            </div>
+
+            <!-- CONTENEDOR DE CHAT -->
+            <div class="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-zinc-200/80 dark:border-zinc-800 rounded-3xl shadow-2xl flex flex-col flex-1 h-[600px] overflow-hidden">
+                
+                <!-- Cabecera del Chat -->
+                <div class="px-6 py-4 border-b border-zinc-200/60 dark:border-zinc-800/60 flex items-center justify-between bg-zinc-50/50 dark:bg-zinc-950/50">
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <div class="w-10 h-10 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold shadow-sm">
+                                <i data-lucide="stethoscope" class="w-5 h-5"></i>
+                            </div>
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-zinc-900 rounded-full"></span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Asistente Virtual VetPet</h3>
+                            <p class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">En línea con Inteligencia Artificial</p>
+                        </div>
+                    </div>
+                    <button onclick="clearChat()" class="text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 flex items-center gap-1 bg-white dark:bg-zinc-800 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 transition-colors">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reiniciar chat
+                    </button>
+                </div>
+
+                <!-- Historial de Mensajes -->
+                <div id="chatMessages" class="flex-1 p-6 overflow-y-auto space-y-4">
+                    <!-- Mensaje Inicial del Bot -->
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm mt-1">
+                            <i data-lucide="bot" class="w-4 h-4"></i>
+                        </div>
+                        <div class="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/60 p-4 rounded-2xl rounded-tl-none max-w-[80%] text-sm shadow-sm text-zinc-800 dark:text-zinc-100">
+                            <p>¡Hola! Soy el asistente veterinario virtual de PetMatch. ¿En qué puedo ayudarte hoy con tu mascota? (Ej: dudas sobre alimentación, comportamiento, vacunas, etc.)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sugerencias rápidas de preguntas -->
+                <div class="px-6 py-2 border-t border-zinc-100 dark:border-zinc-800/60 flex items-center gap-2 overflow-x-auto bg-zinc-50/30 dark:bg-zinc-950/30 no-scrollbar">
+                    <span class="text-xs font-semibold text-zinc-400 shrink-0">Preguntas frecuentes:</span>
+                    <button onclick="sendQuickPrompt('¿Qué cantidad de alimento debe comer un cachorro de 3 meses?')" class="text-xs bg-white dark:bg-zinc-800 hover:border-amber-500 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 px-3 py-1.5 rounded-xl shrink-0 transition-colors shadow-sm">
+                        🍖 Cantidad de comida cachorro
+                    </button>
+                    <button onclick="sendQuickPrompt('¿Cada cuánto se deben desparasitar los perros?')" class="text-xs bg-white dark:bg-zinc-800 hover:border-amber-500 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 px-3 py-1.5 rounded-xl shrink-0 transition-colors shadow-sm">
+                        💊 Desparasitación
+                    </button>
+                    <button onclick="sendQuickPrompt('¿Qué alimentos humanos son tóxicos para los perros?')" class="text-xs bg-white dark:bg-zinc-800 hover:border-amber-500 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 px-3 py-1.5 rounded-xl shrink-0 transition-colors shadow-sm">
+                        ⚠️ Alimentos tóxicos
+                    </button>
+                </div>
+
+                <!-- Input de Escritura -->
+                <div class="p-4 border-t border-zinc-200/60 dark:border-zinc-800/60 bg-white/50 dark:bg-zinc-950/50">
+                    <form onsubmit="handleUserSubmit(event)" class="flex items-center gap-3">
+                        <input type="text" id="userInput" placeholder="Escribí tu consulta sobre tu mascota..." autocomplete="off" class="flex-1 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-amber-500 transition-colors shadow-inner">
+                        <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white p-3 rounded-xl transition-all shadow-md flex items-center justify-center shrink-0">
+                            <i data-lucide="send" class="w-5 h-5"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="py-6 text-center text-sm text-zinc-500 dark:text-zinc-400 backdrop-blur-md bg-white/30 dark:bg-zinc-950/30 border-t border-zinc-200/60 dark:border-zinc-800/60">
+        <p>&copy; 2026 PetMatch. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- SDK oficial de Google Gen AI para navegador -->
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/genai": "https://esm.run/@google/genai"
+        }
+      }
+    </script>
+
+    <!-- Lógica del Chatbot conectada a Gemini -->
+    <script type="module">
+        import { GoogleGenAI } from "@google/genai";
+
+        // Inicializar la API de Gemini con la clave provista
+        const ai = new GoogleGenAI({ apiKey: 'AQ.Ab8RN6L2w77QkUgzUkOvkbj61rV1CRGCC88C0uV7wzpvwpEgMw' });
+
+        lucide.createIcons();
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+
+        // Historial de conversación para memoria del chat
+        let chatHistory = [
+            {
+                role: 'model',
+                parts: [{ text: '¡Hola! Soy el asistente veterinario virtual de PetMatch con Inteligencia Artificial avanzada. ¿En qué puedo ayudarte hoy con tu mascota?' }]
+            }
+        ];
+
+        async function getBotResponse(userText) {
+            try {
+                const chat = ai.chats.create({
+                    model: 'gemini-2.5-flash',
+                    config: {
+                        systemInstruction: 'Sos un asistente veterinario experto y amigable dentro de la plataforma PetMatch. Respondés dudas sobre nutrición, cuidados, salud básica y comportamiento de mascotas (perros, gatos, etc.) de manera clara, concisa, profesional y útil. Si detectas una emergencia médica grave, recomendá siempre acudir de inmediato a un veterinario presencial.',
+                    },
+                    history: chatHistory.slice(0, -1)
+                });
+
+                const response = await chat.sendMessage({ message: userText });
+                const replyText = response.text;
+
+                chatHistory.push({ role: 'user', parts: [{ text: userText }] });
+                chatHistory.push({ role: 'model', parts: [{ text: replyText }] });
+
+                return replyText;
+            } catch (error) {
+                console.error("Error al conectar con Gemini:", error);
+                return "Ups, tuve un pequeño problema de conexión con mi cerebro de IA. Por favor, intentá de nuevo en un momento.";
+            }
+        }
+
+        function appendMessage(sender, text) {
+            const chatMessages = document.getElementById('chatMessages');
+            const isBot = sender === 'bot';
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex items-start gap-3 ${isBot ? '' : 'flex-row-reverse'}`;
+
+            messageDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-full ${isBot ? 'bg-amber-500' : 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900'} text-white flex items-center justify-center shrink-0 shadow-sm mt-1">
+                    <i data-lucide="${isBot ? 'bot' : 'user'}" class="w-4 h-4"></i>
+                </div>
+                <div class="${isBot ? 'bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/60 rounded-tl-none text-zinc-800 dark:text-zinc-100' : 'bg-amber-500 text-white rounded-tr-none'} p-4 rounded-2xl max-w-[80%] text-sm shadow-sm">
+                    <p class="whitespace-pre-wrap">${text}</p>
+                </div>
+            `;
+
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            lucide.createIcons();
+        }
+
+        async function handleUserSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            appendMessage('user', text);
+            input.value = '';
+
+            const loadingId = 'loading-' + Date.now();
+            const chatMessages = document.getElementById('chatMessages');
+            
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = loadingId;
+            loadingDiv.className = `flex items-start gap-3`;
+            loadingDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm mt-1">
+                    <i data-lucide="bot" class="w-4 h-4"></i>
+                </div>
+                <div class="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/60 p-4 rounded-2xl rounded-tl-none text-zinc-800 dark:text-zinc-100 text-sm shadow-sm flex items-center gap-2">
+                    <span class="animate-pulse">Pensando respuesta...</span>
+                </div>
+            `;
+            chatMessages.appendChild(loadingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            lucide.createIcons();
+
+            const botReply = await getBotResponse(text);
+
+            document.getElementById(loadingId).remove();
+            appendMessage('bot', botReply);
+        }
+
+        window.sendQuickPrompt = function(promptText) {
+            document.getElementById('userInput').value = promptText;
+            const fakeEvent = { preventDefault: () => {} };
+            handleUserSubmit(fakeEvent);
+        }
+
+        window.clearChat = function() {
+            chatHistory = [{
+                role: 'model',
+                parts: [{ text: '¡Chat reiniciado! ¿En qué otra cosa te puedo ayudar hoy con tu mascota?' }]
+            }];
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm mt-1">
+                        <i data-lucide="bot" class="w-4 h-4"></i>
+                    </div>
+                    <div class="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/60 p-4 rounded-2xl rounded-tl-none max-w-[80%] text-sm shadow-sm text-zinc-800 dark:text-zinc-100">
+                        <p>¡Chat reiniciado! ¿En qué otra cosa te puedo ayudar hoy?</p>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        document.querySelector('form').addEventListener('submit', handleUserSubmit);
+    </script>
+</body>
+</html>
