@@ -114,7 +114,35 @@
             if (email === '1234' && password === '1234') {
                 alert('¡Acceso rápido concedido (Bypass 1234)!');
                 // Podés cambiar 'dashboard.html' por el nombre del archivo de tu panel principal
-                window.location.href = 'principal.html.html'; 
+                window.location.href = '// Lógica de inicio de sesión con Bypass integrado
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            // BYPASS: Si el usuario y contraseña son "1234"
+            if (email === '1234' && password === '1234') {
+                alert('¡Acceso rápido concedido (Bypass 1234)!');
+                // ACÁ CAMBIÁS AL NOMBRE DE TU ARCHIVO DEL PANEL
+                window.location.href = 'dashboard.html'; 
+                return;
+            }
+
+            // Inicio de sesión normal con Supabase si no se usó el bypass
+            const { data, error } = await _supabase.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                alert('Error al iniciar sesión: ' + error.message);
+            } else {
+                alert('¡Inicio de sesión exitoso! Redirigiendo al panel...');
+                // Y ACÁ TAMBIÉN
+                window.location.href = 'dashboard.html';
+            }
+        });'; 
                 return;
             }
 
