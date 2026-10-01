@@ -53,13 +53,13 @@
                 <p class="text-sm text-zinc-500 dark:text-zinc-400">Ingresá a tu cuenta para gestionar tus turnos y mascotas.</p>
             </div>
 
-            <form id="loginForm" class="space-y-4">
+            <!-- Cambiamos el form por un div con id para evitar problemas de envío automático -->
+            <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-2">Correo electrónico</label>
                     <div class="relative">
                         <i data-lucide="mail" class="w-5 h-5 text-zinc-400 absolute left-3.5 top-3"></i>
-                        <!-- Cambiado a type="text" para permitir escribir "1234" cómodamente sin validación estricta de email -->
-                        <input type="text" id="email" required placeholder="tucorreo@email.com o 1234" class="w-full bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 pl-11 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-rose-500 transition-colors">
+                        <input type="text" id="email" placeholder="tucorreo@email.com o 1234" class="w-full bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 pl-11 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-rose-500 transition-colors">
                     </div>
                 </div>
 
@@ -67,14 +67,15 @@
                     <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-2">Contraseña</label>
                     <div class="relative">
                         <i data-lucide="lock" class="w-5 h-5 text-zinc-400 absolute left-3.5 top-3"></i>
-                        <input type="password" id="password" required placeholder="••••••••" class="w-full bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 pl-11 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-rose-500 transition-colors">
+                        <input type="password" id="password" placeholder="••••••••" class="w-full bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 pl-11 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-rose-500 transition-colors">
                     </div>
                 </div>
 
-                <button type="submit" class="w-full mt-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium py-3 rounded-xl hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all shadow-sm text-sm">
+                <!-- Botón directo con función onclick -->
+                <button type="button" onclick="handleLogin()" class="w-full mt-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium py-3 rounded-xl hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all shadow-sm text-sm cursor-pointer">
                     Iniciar Sesión
                 </button>
-            </form>
+            </div>
 
             <div class="mt-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
                 ¿No tenés una cuenta? <a href="register.html" class="text-rose-600 dark:text-rose-400 font-semibold hover:underline">Registrate gratis</a>
@@ -98,38 +99,28 @@
             document.documentElement.classList.add('dark');
         }
 
-        // Configuración de Supabase (reemplazar con tus datos de tu proyecto)
+        // Configuración de Supabase
         const SUPABASE_URL = 'TU_PROJECT_URL_AQUI';
         const SUPABASE_ANON_KEY = 'TU_ANON_KEY_AQUI';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Lógica de inicio de sesión con Bypass integrado
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // Función directa para el botón de login
+        async function handleLogin() {
+            const emailField = document.getElementById('email');
+            const passwordField = document.getElementById('password');
 
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
+            const email = emailField.value.trim();
+            const password = passwordField.value.trim();
 
-            // BYPASS: Si el usuario y contraseña son "1234"
+            // BYPASS DIRECTO: Si pones 1234 y 1234
             if (email === '1234' && password === '1234') {
                 alert('¡Acceso rápido concedido (Bypass 1234)!');
-                // Podés cambiar 'dashboard.html' por el nombre del archivo de tu panel principal
-                window.location.href = '// Lógica de inicio de sesión con Bypass integrado
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
-
-            // BYPASS: Si el usuario y contraseña son "1234"
-            if (email === '1234' && password === '1234') {
-                alert('¡Acceso rápido concedido (Bypass 1234)!');
-                // ACÁ CAMBIÁS AL NOMBRE DE TU ARCHIVO DEL PANEL
-                window.location.href = 'dashboard.html'; 
+                // CAMBIA ESTO por el nombre exacto de tu archivo de la estación central (ej: dashboard.html)
+                window.location.href = 'index.html'; 
                 return;
             }
 
-            // Inicio de sesión normal con Supabase si no se usó el bypass
+            // Validación normal con Supabase
             const { data, error } = await _supabase.auth.signInWithPassword({
                 email: email,
                 password: password,
@@ -139,26 +130,9 @@
                 alert('Error al iniciar sesión: ' + error.message);
             } else {
                 alert('¡Inicio de sesión exitoso! Redirigiendo al panel...');
-                // Y ACÁ TAMBIÉN
-                window.location.href = 'dashboard.html';
+                window.location.href = 'index.html';
             }
-        });'; 
-                return;
-            }
-
-            // Inicio de sesión normal con Supabase si no se usó el bypass
-            const { data, error } = await _supabase.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
-
-            if (error) {
-                alert('Error al iniciar sesión: ' + error.message);
-            } else {
-                alert('¡Inicio de sesión exitoso! Redirigiendo al panel...');
-                // window.location.href = 'dashboard.html';
-            }
-        });
+        }
     </script>
 </body>
 </html>
